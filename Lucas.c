@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 int main( int argc, char *argv[] )  {
    if( argc == 2 ) {
@@ -9,6 +10,7 @@ int main( int argc, char *argv[] )  {
       int tot = 0;
       int i = 0;
       int t = 0;
+      pid_t pid = getpid();
 
       if (arg == 0)
          return a_0;
@@ -22,8 +24,8 @@ int main( int argc, char *argv[] )  {
       }
       t += 3;
       arg += 1;
-      printf("[Lucas] [pid]: The sum of the first %d numbers of the Lucas series is %d\n", arg, t);
-      printf("[Lucas] [pid]: The nth number in the Lucas series is %d\n", b_0);
+      printf("[Lucas] [%d]: The sum of the first %d numbers of the Lucas series is %d\n", pid, arg, t);
+      printf("[Lucas] [%d]: The nth number in the Lucas series is %d\n", pid, b_0);
       return b_0;
    }
    else if( argc > 2 ) {
