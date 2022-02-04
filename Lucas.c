@@ -35,7 +35,7 @@ int main( int argc, char *argv[] )  {
       printf("[Lucas] [%d]: The nth number in the Lucas series is %d\n", pid, b_0);
       
       /* return the requested info */
-      if (b_0 > 50) {
+      if (t > 50) {
          return arg;
       } else {
          return t;

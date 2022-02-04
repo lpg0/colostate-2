@@ -22,7 +22,7 @@ int main( int argc, char *argv[] )  {
       printf("[HexagonalSeries] [%d]: The nth number in the Hexagonal series is %d\n", pid, b_0);
 
       /* return the requested info */
-      if (b_0 > 100) {
+      if (t > 100) {
          return arg;
       } else {
          return t;
