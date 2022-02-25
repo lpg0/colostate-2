@@ -52,7 +52,7 @@ int main( int argc, char *argv[] )  {
       }
       close(p[1]);
       read(p[0], pipe_tot, WSIZE);
-      close(p[1]);
+      close(p[0]);
       pipe_ret = atoi(pipe_tot);
 
       /* note: algorithm referenced from "https://www.w3resource.com/cpp-exercises/for-loop/cpp-for-loop-exercise-8.php" */
@@ -80,15 +80,25 @@ int main( int argc, char *argv[] )  {
 
       const int SIZE = 32;
       const char* LUCAS_NAME = "SHM_Lucas";
-      
-      int shm_fd;
+      const char* HEXAGONAL_NAME = "SHM_Hexagonal";
+      const char* HARMONIC_NAME = "SHM_Harmonic";
+
+      int shm_fd, shm_fd_1, shm_fd_2;
       void* ptr;
+      void* ptr_1;
+      void* ptr_2;
 
       shm_fd = shm_open(LUCAS_NAME, O_CREAT | O_RDWR, 0666);
- 
+      shm_fd_1 = shm_open(HEXAGONAL_NAME, O_CREAT | O_RDWR, 0666);
+      shm_fd_2 = shm_open(HARMONIC_NAME, O_CREAT | O_RDWR, 0666);
+      
       ftruncate(shm_fd, SIZE);
+      ftruncate(shm_fd_1, SIZE);
+      ftruncate(shm_fd_2, SIZE);
        
       printf("[Starter][%d]: Created Shared memory %s with FD: %d\n", pid_main, LUCAS_NAME, shm_fd);      
+      printf("[Starter][%d]: Created Shared memory %s with FD: %d\n", pid_main, HEXAGONAL_NAME, shm_fd_1);
+      printf("[Starter][%d]: Created Shared memory %s with FD: %d\n", pid_main, HARMONIC_NAME, shm_fd_2);
 
       pid = fork();
 
@@ -96,54 +106,42 @@ int main( int argc, char *argv[] )  {
          /* child: exec Lucas.c */
          execlp(f_lucas, f_lucas, LUCAS_NAME, max_prime, NULL);
       } else {
-         /* parent: wait for Lucas.c */
          wait(&status);
-         if (WIFEXITED(status)) {
-            printf("[Starter] [%d]: Lucas last number: %d\n", pid_main, WEXITSTATUS(status));
-            ret1 = WEXITSTATUS(status);
-            sprintf(f_buf, "%d", WEXITSTATUS(status));
-         }
       }
 
       ptr = mmap(0, SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
-      printf("[Starter] [%d]: Lucas last number: %s\n", pid_main, (char*)ptr);
       shm_unlink(LUCAS_NAME);
+      
+      pid = fork();
+
+      if (pid == 0) {
+         /* child: exec HexagonalSeries.c */
+         execlp(f_hexagonal, f_hexagonal, HEXAGONAL_NAME, max_prime, NULL);
+      } else {
+         wait(&status);
+      }
+
+      ptr_1 = mmap(0, SIZE, PROT_READ, MAP_SHARED, shm_fd_1, 0);
+      shm_unlink(HEXAGONAL_NAME);
+
+      pid = fork();
+
+      if (pid == 0) {
+         /* child: exec HarmonicSeries.c */
+         execlp(f_harmonic, f_harmonic, HARMONIC_NAME, max_prime, NULL);
+      } else {
+         wait(&status);
+      }
+
+      ptr_2 = mmap(0, SIZE, PROT_READ, MAP_SHARED, shm_fd_2, 0);
+      shm_unlink(HARMONIC_NAME);
+
+      printf("[Starter] [%d]: Lucas last number: %s\n", pid_main, (char*)ptr);
+      printf("[Starter] [%d]: HexagonalSeries last number: %s\n", pid_main, (char*)ptr_1);
+      printf("[Starter] [%d]: HarmonicSeries last number: %s\n", pid_main, (char*)ptr_2);
 
       return(0);
 
-      /* loop through the lines of the file */
-      while (fgets(buf, (unsigned) 256, fp)) {
-         /* fork: make child to run Lucas.c */
-         pid = fork();
-         if (pid == 0) {
-            /* child: exec Lucas.c */
-            f_b = buf;
-            execlp(f_lucas, f_lucas, f_b, NULL);
-         } else {
-            /* parent: wait for Lucas.c */
-            printf("[Generator] [%d]: Waiting for the child process %d\n", pid_main, pid);
-            wait(&status);
-            if (WIFEXITED(status)) {
-               printf("[Generator] [%d]: The child process %d returned %d\n", pid_main, pid, WEXITSTATUS(status));
-               ret1 = WEXITSTATUS(status);
-               sprintf(f_buf, "%d", WEXITSTATUS(status));
-            }
-         }
-         /* fork: make child to run HexagonalSeries.c */
-         pid = fork();
-         if (pid == 0) {
-            /* child: exec HexagonalSeries.c */
-            execlp(f_hexagonal, f_hexagonal, f_buf, NULL);
-         } else {
-            /* parent: wait for HexagonalSeries.c */
-            printf("[Generator] [%d]: Waiting for the child process %d\n", pid_main, pid);
-            wait(&status);
-            if (WIFEXITED(status)) {
-               printf("[Generator] [%d]: The child process %d returned %d\n", pid_main, pid, WEXITSTATUS(status));
-               ret2 = WEXITSTATUS(status);
-               sprintf(f_buf, "%d", WEXITSTATUS(status));
-            }
-         }
       fclose(fp);
    }
    else if( argc > 2 ) {

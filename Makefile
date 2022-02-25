@@ -1,16 +1,19 @@
-all: generator lucas hexagonal harmonic
+all: starter reader lucas hexagonal harmonic
 
-generator: Generator.c
-	gcc -o generator Generator.c
+starter: Starter.c
+	gcc -lrt -o starter Starter.c
+
+reader: Reader.c
+	gcc -o reader Reader.c
 
 lucas: Lucas.c
-	gcc -o lucas Lucas.c
+	gcc -lrt -o lucas Lucas.c
 
 hexagonal: HexagonalSeries.c
-	gcc -o hexagonal HexagonalSeries.c
+	gcc -lrt -o hexagonal HexagonalSeries.c
 
 harmonic: HarmonicSeries.c
-	gcc -o harmonic HarmonicSeries.c
+	gcc -lrt -o harmonic HarmonicSeries.c
 
 clean:
-	rm -f generator.o lucas.o hexagonal.o harmonic.o
+	rm -f starter.o reader.o lucas.o hexagonal.o harmonic.o

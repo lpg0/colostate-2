@@ -31,12 +31,7 @@ int main( int argc, char *argv[] )  {
 
       /* open the shared memory object */
       shm_fd = shm_open(NAME, O_RDWR, 0666);
- 
-      /* memory map the shared memory object */
       ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
-
-      /* read from the shared memory object */
-      /* printf("%s", (char*)ptr); */
 
       printf("[Lucas][%d]: The first %d numbers of the Lucas series are:\n", pid, arg+1);
       printf("2 ");
